@@ -9,7 +9,7 @@ k    = ceil(r*m);     % Upper bound of sign flips
 v    = 0.5;
 
 Type = 'Ind';         % 'Ind' or 'Cor' 
-test = 'm';           % change 'test' to see effect of GPSP to different factors
+test = 's';           % change 'test' to see effect of GPSP to different factors
 
 switch test
   case 'm',   test0 = linspace(0.1,1.5,8);   
@@ -37,20 +37,23 @@ for j  = 1:nnz(test0)
         out         = GPSP(A,c,s,k);      
         recd(j,1)   = recd(j,1) - 20*log10(norm(xo-out.x));    
         recd(j,2)   = recd(j,2) + nnz(sign(A*out.x)-c)/m;
-        recd(j,3)   = recd(j,3) + nnz(sign(A*out.x)-co)/m;
-        recd(j,4)   = recd(j,4) + out.time;
+        recd(j,4)   = recd(j,4) + nnz(sign(A*out.x)-co)/m;
+        recd(j,3)   = recd(j,3) + out.time;
     end
 end
 
 recd = recd/S; 
-ylab = {'SNR','HD','HE','Time'};
-figure('Renderer', 'painters', 'Position', [900, 200, 500 400])
-set(0,'DefaultAxesTitleFontWeight','normal');
+ylab = {'SNR','HD','TIME','HE'};
+figure('Renderer', 'painters', 'Position', [900, 200, 450 350])
+xloc = [-0.05  0.01 -0.05  0.01];
+yloc = [ 0.01  0.01 -0.02 -0.02];
 for j  = 1:4
-    subplot(2,2,j)
-    tmp = recd(:,j);
-    plot(test0,tmp,'r*-','LineWidth',1), hold on,
-    grid on, xlabel(test), title(ylab{j})  
-    axis([min(test0) max(test0) min(tmp)/1.1 max(tmp)*1.1])   
+    sub  = subplot(2,2,j); 
+    pos = get(sub, 'Position'); 
+    tmp  = recd(:,j);
+    plot(test0,tmp,'black.-','LineWidth',0.75), hold on,
+    grid on, xlabel(test), ylabel(ylab{j})  
+    axis([min(test0) max(test0) min(tmp)/1.1 max(tmp)*1.1]) 
+    set(sub, 'Position',pos+[xloc(j),yloc(j),0.06,0.05] )
 end   
  
