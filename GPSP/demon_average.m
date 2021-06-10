@@ -8,8 +8,9 @@ r    = 0.05;          % Probability of sign flips
 k    = ceil(r*m);     % Upper bound of sign flips
 v    = 0.5;
 
-Type = 'Ind';         % 'Ind' or 'Cor' 
-test = 's';           % change 'test' to see effect of GPSP to different factors
+Type = 'Ind';         % or 'Cor' 
+test = 's';           % change 'test' to see effect of GPSP to 
+                      % factors {'s','m','r','v','n'}
 
 switch test
   case 'm',   test0 = linspace(0.1,1.5,8);   
