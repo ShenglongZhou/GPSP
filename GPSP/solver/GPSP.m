@@ -3,18 +3,19 @@ function out = GPSP(A0,c,s,k,pars)
 %
 %                c = sign(A0*x)
 %
-% This code aims at solving the problem via the double sparsity constrained optimization
+% This code aims at solving one-bit compressed sensing 
+% via the double sparsity constrained optimization
 %
 %                min  ||Ax+y-eps||^2 + eta||x||^2
 %                s.t. ||x||_0<=s, ||y_+||_0<=k
 %
 % where A = diag(c)*A0, eps>0, eta>0, s\in[1,n], k\in[0,m] are given.
-%
+% =========================================================================
 % Inputs:
-%     A        : The sensing matrix \in R^{m-by-n},                (required)
-%     c        : The binary observation \in R^m, c_i\in{-1,1}      (required)
-%     s        : Sparsity level of x, an integer \in[1,n]          (required)      
-%     k        : Upper bound of sign flips of (A0*x)               (required) 
+%     A0       : The sensing matrix \in R^{m-by-n},              (required)
+%     c        : The binary observation \in R^m, c_i\in{-1,1}    (required)
+%     s        : Sparsity level of x, an integer \in[1,n]        (required)      
+%     k        : Upper bound of sign flips of (A0*x)             (required) 
 %                An integer \in[1,m], e.g., k = ceil(0.01m)         
 %     pars     : Parameters are all OPTIONAL
 %                pars.eps   --  The parameter in the model         (default,1e-4)
@@ -28,14 +29,22 @@ function out = GPSP(A0,c,s,k,pars)
 %     out.y    : The  solution in \R^m
 %     out.time : CPU time
 %     out.iter : Number of iterations
+% =========================================================================
+% This code is written by Shenglong Zhou 
+% It was programmed based on the algorithm proposed in 
 %
-% This code is written by Shenglong Zhou and programmed based on the algorithm proposed in 
-% Shenglong Zhou, Ziyan Luo, Naihua Xiu,  (2021),
-% Computing one-bit compressed sensing via double sparsity constrained optimization
-% Send your comments and suggestions to <<< shenglong.zhou@soton.ac.uk >>> 
+% Shenglong Zhou, Ziyan Luo and Naihua Xiu, Computing one-bit 
+% compressed sensing via double sparsity constrained optimization, 2021
+%
+% Send your comments and suggestions to <<< slzhou2021@163.com >>> 
 % Warning: Accuracy may not be guaranteed !!!!! 
+% =========================================================================
 
 t0     = tic; 
+
+if nargin<4, disp('Inputs are not enough, stop running ...'), return, end
+if nargin<5, pars  = []; end
+
 [m,n]  = size(A0);
 if  n  <  1e4
     A = c.*A0;
@@ -43,8 +52,6 @@ else
     A = spdiags(c,0,m,m)*A0;    
 end
 Fnorm = @(var)norm(var).^2;
-
-if nargin<5, pars  = []; end
 [maxit,tol,eta,eps,acc]          = GetParameters(m,n); 
 if isfield(pars,'maxit'); maxit  = pars.maxit;   end
 if isfield(pars,'tol');   tol    = pars.tol;     end
