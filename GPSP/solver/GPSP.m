@@ -51,7 +51,7 @@ if  n  <  1e4
 else
     A = spdiags(c,0,m,m)*A0;    
 end
-Fnorm = @(var)norm(var).^2;
+Fnorm = @(var)norm(var,'fro')^2;
 [maxit,tol,eta,eps,acc]          = GetParameters(m,n); 
 if isfield(pars,'maxit'); maxit  = pars.maxit;   end
 if isfield(pars,'tol');   tol    = pars.tol;     end
