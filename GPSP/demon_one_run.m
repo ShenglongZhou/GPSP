@@ -14,7 +14,7 @@ fprintf('Time: %6.3f\n',out.time);
 fprintf('SNR:  %6.3f\n',-10*log10(norm(x-xo)^2));
 fprintf('HD:   %6.3f\n',nnz(sign(A*x)-c)/m)
 fprintf('HE:   %6.3f\n',nnz(sign(A*x)-co)/m)
-ReoveryShow(xo,x,[1000 450 500 250])
+RecoverShow(xo,x,[1000 450 500 250])
 
 
 
