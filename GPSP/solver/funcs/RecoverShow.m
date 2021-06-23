@@ -1,4 +1,4 @@
-function ReoveryShow(xo,x,pos)
+function RecoverShow(xo,x,pos)
     figure('Renderer', 'painters', 'Position', pos)
     axes('Position', [0.05 0.1 0.9 0.8] );
     stem(find(xo),xo(xo~=0),'bo-','MarkerSize',6, 'LineWidth',1),hold on
