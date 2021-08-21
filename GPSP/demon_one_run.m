@@ -1,6 +1,6 @@
 clc; close all; clear; warning off
 
-n          = 2000; 
+n          = 20000; 
 m          = ceil(0.5*n);
 s          = ceil(0.01*n);  % sparsity level
 r          = 0.01;          % flipping ratio
