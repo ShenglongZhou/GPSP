@@ -1,10 +1,10 @@
 clc; close all; clear; warning off
 addpath(genpath(pwd));
 
-n          = 20000; 
-m          = ceil(0.5*n);
-s          = ceil(0.01*n);  % sparsity level
-r          = 0.01;          % flipping ratio
+n          = 20000;         % Signal dimension 
+m          = ceil(0.5*n);   % Number of measurements
+s          = ceil(0.01*n);  % Sparsity level
+r          = 0.01;          % Flipping ratio
 type       = 'Ind';         % or 'Cor' 
 [A,c,co,xo]= random1bcs(type,m,n,s,r);
 
