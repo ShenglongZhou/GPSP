@@ -1,4 +1,5 @@
 clc; close all; clear; warning off
+addpath(genpath(pwd));
 
 n          = 20000; 
 m          = ceil(0.5*n);
