@@ -1,12 +1,12 @@
 clc, clear all, close all, warning off
-addpath(genpath(fileparts(mfilename('fullpath'))));
- 
+addpath(genpath(pwd));
+
 n    = 500;           % Signal dimension 
 m    = ceil(0.5*n);   % Number of measurements
 s    = ceil(0.01*n);  % Signal sparsity
-r    = 0.05;          % Probability of sign flips
+r    = 0.05;          % Flipping ratio
 k    = ceil(r*m);     % Upper bound of sign flips
-v    = 0.5;
+v    = 0.5;           % Correlation parameter
 
 Type = 'Ind';         % or 'Cor' 
 test = 's';           % change 'test' to see effect of GPSP to 
