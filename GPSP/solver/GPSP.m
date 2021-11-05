@@ -12,17 +12,18 @@ function out = GPSP(A0,c,s,k,pars)
 % where A = diag(c)*A0, eps>0, eta>0, s\in[1,n], k\in[0,m] are given.
 % =========================================================================
 % Inputs:
-%     A0       : The sensing matrix \in R^{m-by-n},              (required)
-%     c        : The binary observation \in R^m, c_i\in{-1,1}    (required)
-%     s        : Sparsity level of x, an integer \in[1,n]        (required)      
-%     k        : Upper bound of sign flips of (A0*x)             (required) 
+%     A0       : The sensing matrix \in R^{m-by-n},            (required)
+%     c        : The binary observation \in R^m, c_i\in{-1,1}  (required)
+%     s        : Sparsity level of x, an integer \in[1,n]      (required)      
+%     k        : Upper bound of sign flips of (A0*x)           (required) 
 %                An integer \in[1,m], e.g., k = ceil(0.01m)         
 %     pars     : Parameters are all OPTIONAL
-%                pars.eps   --  The parameter in the model         (default,1e-4)
-%                pars.eta   --  The penalty parameter              (default,0.01/log(n))
-%                pars.acc   --  Acceleration is used if acc=1      (default,1)
-%                pars.maxit --  Maximum number of iterations       (default,1000) 
-%                pars.tol   --  Tolerance of the halting condition (default,1e-9*sqrt(min(m,n)))
+%                pars.eps   --  The parameter in the model      (default,1e-4)
+%                pars.eta   --  The penalty parameter           (default,0.01/log(n))
+%                pars.acc   --  Acceleration is used if acc=1   (default,0)
+%                pars.big   --  Start with a bigger s if big=1  (default,0)
+%                pars.maxit --  Maximum number of iterations    (default,1000) 
+%                pars.tol   --  Tolerance of halting condition  (default,1e-9*sqrt(min(m,n)))
 % Outputs:
 %     out.obj  : Objective function value 
 %     out.x    : The sparse solution in \R^n
@@ -41,32 +42,33 @@ function out = GPSP(A0,c,s,k,pars)
 % =========================================================================
 
 t0     = tic; 
-
-if nargin<4, disp('Inputs are not enough, stop running ...'), return, end
-if nargin<5, pars  = []; end
-
 [m,n]  = size(A0);
 if  n  <  1e4
     A = c.*A0;
 else
     A = spdiags(c,0,m,m)*A0;    
 end
-Fnorm = @(var)norm(var,'fro')^2;
-[maxit,tol,eta,eps,acc]          = GetParameters(m,n); 
+Fnorm = @(var)norm(var).^2;
+
+if nargin<5, pars  = []; end
+[maxit,tol,eta,eps,acc,big]      = GetParameters(m,n); 
 if isfield(pars,'maxit'); maxit  = pars.maxit;   end
 if isfield(pars,'tol');   tol    = pars.tol;     end
 if isfield(pars,'eta');   eta    = pars.eta;     end
 if isfield(pars,'eps');   eps    = pars.eps;     end
 if isfield(pars,'acc');   acc    = pars.acc;     end
+if isfield(pars,'big');   big    = pars.big;     end
 
-s0        = s;
-if     s >= 0.01*n
-       s  = ceil((1+m/n)*s); 
-elseif s >= 0.005*n
-       s  = ceil(1.2*s);  
+
+s0 = s;
+if  big
+    if     s >= 0.01*n
+           s  = ceil((1+m/n)*s); 
+    elseif s >= 0.005*n
+           s  = ceil(1.2*s);  
+    end
 end
- 
-x       = zeros(n,1); 
+x       = zeros(n,1);
 y       = zeros(m,1);
 a       = 1;
 barx    = x;
@@ -118,7 +120,7 @@ for iter = 1:maxit
             flag = isempty(setdiff(I,I0));
         end
     end
- 
+
     if  flag  && nnz(I)<m
        if iter>2 && stop0(iter-2)==1 && stop0(iter-1)==1 
            break;
@@ -155,7 +157,7 @@ for iter = 1:maxit
     stop1 = (iter > 5 && gap < tol);     
     stop2 = (iter > 5 && std(HAM(iter-5:iter))<1e-6*log(n));  
     stop3 = (iter > 5 && std(OBJ(iter-5:iter))<1e-5*log(n));  
-    stop4 = stop0(iter)*(n<1e4)+(n>=1e4);
+    stop4 = stop0(iter)*(n<1e4)+(n>=1e4); 
     stop5 = (ham==1 && gap < 1e-4);
     if (stop1 && (stop2 || stop3) && stop4) || stop5
        break;
@@ -208,12 +210,13 @@ clear A b A0 B0 P
 end
 
 %--------------------------------------------------------------------------
-function [maxit,tol,eta,eps,acc] = GetParameters(m,n)
+function [maxit,tol,eta,eps,acc,big] = GetParameters(m,n)
     maxit = 1e3;
     tol   = 1e-9*sqrt(min(m,n));
-    eta   = 1e-4; 
+    eta   = 0;1e-4; 
     eps   = 0.01*( (n<1e4) + (n>=1e4)/log(n) );
-    acc   = 1;    
+    acc   = 0;    
+    big   = 0;
 end
 
 %--------------------------------------------------------------------------
