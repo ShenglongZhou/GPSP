@@ -85,7 +85,7 @@ stop0   = zeros(maxit,1);
 
 fprintf('\n Start to run the solver: GPSP\n')
 fprintf('--------------------------------------------\n');
-fprintf(' Iter     Error       HamDist    Objective\n')
+fprintf(' Iter      HamDist      ObjVal       Time\n')
 fprintf('--------------------------------------------\n');
 
 for iter = 1:maxit
@@ -152,8 +152,8 @@ for iter = 1:maxit
     HAM(iter) = ham; 
     OBJ(iter) = obj;   
     
-    fprintf('%4d     %6.2e     %6.3f%%    %6.3e\n',...
-             iter,gap,ham*100,obj);
+    fprintf('%4d      %6.2f%%      %6.2e    %5.2fsec\n',...
+             iter, ham*100,obj, toc(t0));
     stop1 = (iter > 5 && gap < tol);     
     stop2 = (iter > 5 && std(HAM(iter-5:iter))<1e-6*log(n));  
     stop3 = (iter > 5 && std(OBJ(iter-5:iter))<1e-5*log(n));  
