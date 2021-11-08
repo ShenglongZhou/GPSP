@@ -213,7 +213,7 @@ end
 function [maxit,tol,eta,eps,acc,big] = GetParameters(m,n)
     maxit = 1e3;
     tol   = 1e-9*sqrt(min(m,n));
-    eta   = 0;1e-4; 
+    eta   = 1e-4; 
     eps   = 0.01*( (n<1e4) + (n>=1e4)/log(n) );
     acc   = 0;    
     big   = 0;
