@@ -21,7 +21,7 @@ function out = GPSP(A0,c,s,k,pars)
 %                pars.eps   --  The parameter in the model      (default,1e-4)
 %                pars.eta   --  The penalty parameter           (default,0.01/log(n))
 %                pars.acc   --  Acceleration is used if acc=1   (default,0)
-%                pars.big   --  Start with a bigger s if big=1  (default,0)
+%                pars.big   --  Start with a bigger s if big=1  (default,1)
 %                pars.maxit --  Maximum number of iterations    (default,1000) 
 %                pars.tol   --  Tolerance of halting condition  (default,1e-9*sqrt(min(m,n)))
 % Outputs:
@@ -216,7 +216,7 @@ function [maxit,tol,eta,eps,acc,big] = GetParameters(m,n)
     eta   = 1e-4; 
     eps   = 0.01*( (n<1e4) + (n>=1e4)/log(n) );
     acc   = 0;    
-    big   = 0;
+    big   = 1;
 end
 
 %--------------------------------------------------------------------------
