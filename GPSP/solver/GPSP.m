@@ -113,7 +113,7 @@ for iter = 1:maxit
         alpha = alpha*0.25;
     end
          
-    flag = isempty(setdiff(T,T0));    
+    flag = isempty(setdiff(T,T0)) || Fnorm(u)<tol;    
     if flag
         I = find(y); 
         if  nnz(I) == nnz(I0)
