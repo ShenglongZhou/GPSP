@@ -34,7 +34,7 @@ function out = GPSP(A0,c,s,k,pars)
 % This code is written by Shenglong Zhou 
 % It was programmed based on the algorithm proposed in 
 %
-% Shenglong Zhou, Ziyan Luo and Naihua Xiu, Computing one-bit 
+% Shenglong Zhou, Ziyan Luo, Naihua Xiu, Geoffrey Ye Li, Computing one-bit 
 % compressed sensing via double sparsity constrained optimization, 2021
 %
 % Send your comments and suggestions to <<< slzhou2021@163.com >>> 
