@@ -35,7 +35,8 @@ function out = GPSP(A0,c,s,k,pars)
 % It was programmed based on the algorithm proposed in 
 %
 % Shenglong Zhou, Ziyan Luo, Naihua Xiu, Geoffrey Ye Li, Computing one-bit 
-% compressed sensing via double sparsity constrained optimization, 2021
+% compressed sensing via double sparsity constrained optimization,
+% IEEE Transactions on Signal Processing, vol. 70, pp. 1593-1608, 2022.
 %
 % Send your comments and suggestions to <<< slzhou2021@163.com >>> 
 % Warning: Accuracy may not be guaranteed !!!!! 
