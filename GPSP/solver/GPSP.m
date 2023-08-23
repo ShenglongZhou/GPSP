@@ -63,12 +63,14 @@ if isfield(pars,'big');   big    = pars.big;     end
 
 s0 = s;
 if  big
-    if     s >= 0.01*n
-           s  = ceil((1+m/n)*s); 
-    elseif s >= 0.005*n
-           s  = ceil(1.2*s);  
+    sn = s/n;
+    if sn >= 0.01 && sn < 0.1 
+       s = ceil((1+min(1,m/n))*s);
+    elseif sn >= 0.005 && sn < 0.01 
+       s = ceil(1.2*s);  
     end
 end
+
 x       = zeros(n,1);
 y       = zeros(m,1);
 a       = 1;
@@ -129,7 +131,7 @@ for iter = 1:maxit
        x1     = zeros(n,1);
        y1     = zeros(m,1);
        AIT    = AT(I,:);
-       AT0    = AT(y==0,:);
+       AT0    = AT(y==0,:); 
        tmp    = (AT0'*AT0+eta*speye(s))\(eps*sum(AT0,1)'); 
        x1(T)  = tmp;  
        y1(I)  = eps-AIT*tmp;  
@@ -217,7 +219,7 @@ function [maxit,tol,eta,eps,acc,big] = GetParameters(m,n)
     eta   = 1e-4; 
     eps   = 0.01*( (n<1e4) + (n>=1e4)/log(n) );
     acc   = 0;    
-    big   = 1;
+    big   = 1*(m<2.1*n);
 end
 
 %--------------------------------------------------------------------------
