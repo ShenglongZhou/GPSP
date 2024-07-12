@@ -49,7 +49,7 @@ if  n  <  1e4
 else
     A = spdiags(c,0,m,m)*A0;    
 end
-Fnorm = @(var)norm(var).^2;
+Fnorm = @(var)norm(var,'fro')^2;
 
 if nargin<5, pars  = []; end
 [maxit,tol,eta,eps,acc,big]      = GetParameters(m,n); 
@@ -64,9 +64,9 @@ if isfield(pars,'big');   big    = pars.big;     end
 s0 = s;
 if  big
     sn = s/n;
-    if sn >= 0.01 && sn < 0.1 
+    if sn > 0.01 && sn < 0.1 
        s = ceil((1+min(1,m/n))*s);
-    elseif sn >= 0.005 && sn < 0.01 
+    elseif sn >= 0.005 && sn <= 0.01 
        s = ceil(1.2*s);  
     end
 end
@@ -77,7 +77,7 @@ a       = 1;
 barx    = x;
 bary    = y;
 
-T       = []; 
+T       = 1:s; 
 I       = [];
 Axy     = y-eps;
 obj     = Fnorm(Axy);  
@@ -101,11 +101,13 @@ for iter = 1:maxit
     obj0 = obj;
     v    = Axy; 
     u    = (v'*A)' + eta*barx;
- 
-    for j   = 1 : 15
+    TT   = 1:s;
+    for j   = 1 : 20
         [x,T] = ProS(barx - alpha*u,s); 
         y     = ProK(bary - alpha*v,k); 
-        AT    = A(:,T);
+        if nnz(T-TT)~=0
+            AT = A(:,T);
+        end
         Ax    = AT*x(T);
         Axy   = Ax - eps   + y;
         obj   = Fnorm(Axy) + eta*Fnorm(x(T));  
@@ -113,36 +115,36 @@ for iter = 1:maxit
         if obj  < obj0 - 1e-6*gap 
            break; 
         end
-        alpha = alpha*0.25;
+        alpha = alpha*0.5;
+        TT    = T;
     end
-         
-    flag = isempty(setdiff(T,T0)) || Fnorm(u)<tol;    
+    
+    flag  = nnz(T-T0)==0 || Fnorm(u)<tol;
     if flag
         I = find(y); 
         if  nnz(I) == nnz(I0)
-            flag = isempty(setdiff(I,I0));
+            flag = nnz(I-I0)==0;
         end
     end
 
     if  flag  && nnz(I)<m
-       if iter>2 && stop0(iter-2)==1 && stop0(iter-1)==1 
-           break;
-       end
-       x1     = zeros(n,1);
-       y1     = zeros(m,1);
-       AIT    = AT(I,:);
-       AT0    = AT(y==0,:); 
-       tmp    = (AT0'*AT0+eta*speye(s))\(eps*sum(AT0,1)'); 
-       x1(T)  = tmp;  
-       y1(I)  = eps-AIT*tmp;  
-       Ax1    = AT*tmp;
-       Axy1   = Ax1 - eps + y1;
-       obj1   = Fnorm(Axy1) + eta*Fnorm(x1(T));
-       gap    = Fnorm(x(T)-x1(T)) + Fnorm(y(I)-y1(I)); 
+       if iter>5 && min(stop0(iter-5:iter-1))==1 
+          break;
+       end 
+       AT0     = AT(y==0,:); 
+       tmp     = (AT0'*AT0+eta*speye(s))\(eps*sum(AT0,1)');   
+       tmp2    = eps-AT(I,:)*tmp;  
+       Ax1     = AT*tmp;
+       Axy1    = Ax1 - eps; 
+       Axy1(I) = Axy1(I) + tmp2;
+       obj1    = Fnorm(Axy1) + eta*Fnorm(tmp);
+       gap     = Fnorm(x(T)-tmp) + Fnorm(y(I)-tmp2); 
        stop0(iter) = 1; 
-       if obj1    <= obj-1e-6*gap && nnz(y1>0)<=k   
-          x        = x1;
-          y        = y1;  
+       if obj1    <= obj-1e-6*gap && nnz(tmp2>0)<=k   
+          x        = zeros(n,1);
+          y        = zeros(m,1);
+          x(T)     = tmp;
+          y(I)     = tmp2;  
           Ax       = Ax1;
           Axy      = Axy1;
           obj      = obj1;              
@@ -158,12 +160,12 @@ for iter = 1:maxit
     fprintf('%4d      %6.2f%%      %6.2e    %5.2fsec\n',...
              iter, ham*100,obj, toc(t0));
     stop1 = (iter > 5 && gap < tol);     
-    stop2 = (iter > 5 && std(HAM(iter-5:iter))<1e-6*log(n));  
-    stop3 = (iter > 5 && std(OBJ(iter-5:iter))<1e-5*log(n));  
+    stop2 = (iter > 5 && std(HAM(iter-5:iter))<1e-6*log(n));   
+    stop3 = (iter > 5 && std(OBJ(iter-5:iter))<1e-6*log(n));   
     stop4 = stop0(iter)*(n<1e4)+(n>=1e4); 
     stop5 = (ham==1 && gap < 1e-4);
     if (stop1 && (stop2 || stop3) && stop4) || stop5
-       break;
+        break;
     end
  
     if mod(iter,50)==0, k = ceil(k/2);  end  
