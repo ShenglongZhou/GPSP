@@ -11,7 +11,6 @@ v    = 0.5;           % Correlation parameter
 Type = 'Ind';         % or 'Cor' 
 test = 's';           % change 'test' to see effect of GPSP to 
                       % factors {'s','m','r','v','n'}
-
 switch test
   case 'm',   test0 = linspace(0.2,2,10);   
   case 's',   test0 = 2:10;  
@@ -46,12 +45,12 @@ end
 recd = recd/S; 
 
 close all;
-ylab = {'SNR','HD','HE','TIME'};
 figure('Renderer', 'painters', 'Position', [200, 50, 900 190])
-xloc = [ -0.09  -0.045  0.005  0.04];
-for j  = 1:4
+ylab  = {'SNR','HD','HE','TIME'};
+xloc  = [ -0.09  -0.045  0.005  0.04];
+for j = 1:4
     sub  = subplot(1,4,j); 
-    pos = get(sub, 'Position'); 
+    pos  = get(sub, 'Position'); 
     if j < 4
         plot(test0,recd(:,j),'black.-','LineWidth',0.75), hold on,
         axis([min(test0) max(test0) 0-2*(j==1) 0.35+33*(j==1)]); 
@@ -61,4 +60,3 @@ for j  = 1:4
     grid on, xlabel(test), ylabel(ylab{j})   
     set(sub, 'Position',pos+[xloc(j),0.00,0.04,-0.01] )
 end   
- 
