@@ -102,7 +102,7 @@ for iter = 1:maxit
     v    = Axy; 
     u    = (v'*A)' + eta*barx;
     TT   = 1:s;
-    for j   = 1 : 20
+    for j   = 1 : 10
         [x,T] = ProS(barx - alpha*u,s); 
         y     = ProK(bary - alpha*v,k); 
         if nnz(T-TT)~=0
@@ -115,7 +115,7 @@ for iter = 1:maxit
         if obj  < obj0 - 1e-6*gap 
            break; 
         end
-        alpha = alpha*0.5;
+        alpha = alpha*0.25;
         TT    = T;
     end
     
