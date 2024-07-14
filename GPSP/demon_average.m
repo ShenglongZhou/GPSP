@@ -9,13 +9,13 @@ k    = ceil(r*m);     % Upper bound of sign flips
 v    = 0.5;           % Correlation parameter
 
 Type = 'Ind';         % or 'Cor' 
-test = 'v';           % change 'test' to see effect of GPSP to 
+test = 's';           % change 'test' to see effect of GPSP to 
                       % factors {'s','m','r','v','n'}
 
 switch test
   case 'm',   test0 = linspace(0.2,2,10);   
   case 's',   test0 = 2:10;  
-  case 'r',   test0 = 0.02:0.02:0.2;  
+  case 'r',   test0 = 0.01:0.01:0.1;  
   case 'v',   test0 = 0.1:0.1:0.9; Type = 'Cor';
   case 'n',   test0 = (5:5:20)*1e3;
 end
@@ -52,13 +52,13 @@ xloc = [ -0.09  -0.045  0.005  0.04];
 for j  = 1:4
     sub  = subplot(1,4,j); 
     pos = get(sub, 'Position'); 
-    tmp = recd(:,j);
     if j < 4
-        plot(test0,tmp,'black.-','LineWidth',0.75), hold on,
+        plot(test0,recd(:,j),'black.-','LineWidth',0.75), hold on,
         axis([min(test0) max(test0) 0-2*(j==1) 0.35+33*(j==1)]); 
     else
-        semilogy(test0,tmp,'black.-','LineWidth',0.75), hold on,
+        semilogy(test0,recd(:,j),'black.-','LineWidth',0.75), hold on,
     end
     grid on, xlabel(test), ylabel(ylab{j})   
-    set(sub, 'Position',pos+[xloc(j),0,0.04,-0.01] )
+    set(sub, 'Position',pos+[xloc(j),0.00,0.04,-0.01] )
 end   
+ 
