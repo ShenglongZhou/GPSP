@@ -228,7 +228,7 @@ end
 function [xs,T] = ProS(x,s)
          [~,T]  = maxk(abs(x),s);  
          T      = sort(T);
-         xs     = 0*x;
+         xs     = zeros(size(x));
          xs(T)  = x(T);
 end
 
