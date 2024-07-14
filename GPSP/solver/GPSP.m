@@ -60,7 +60,6 @@ if isfield(pars,'eps');   eps    = pars.eps;     end
 if isfield(pars,'acc');   acc    = pars.acc;     end
 if isfield(pars,'big');   big    = pars.big;     end
 
-
 s0 = s;
 if  big
     sn = s/n;
@@ -93,7 +92,7 @@ fprintf('--------------------------------------------\n');
 
 for iter = 1:maxit
       
-    alpha= 1; 
+    alpha= max(1e-3,10/n); 
     T0   = T;
     I0   = I;
     x0   = x;
@@ -102,20 +101,21 @@ for iter = 1:maxit
     v    = Axy; 
     u    = (v'*A)' + eta*barx;
     TT   = 1:s;
-    for j   = 1 : 10
-        [x,T] = ProS(barx - alpha*u,s); 
-        y     = ProK(bary - alpha*v,k); 
+  
+    for j   = 1 : 20
+        [x, xT, T] = ProS(barx - alpha*u,s);  
+        y          = ProK(bary - alpha*v,k); 
         if nnz(T-TT)~=0
             AT = A(:,T);
         end
-        Ax    = AT*x(T);
+        Ax    = AT*xT;
         Axy   = Ax - eps   + y;
-        obj   = Fnorm(Axy) + eta*Fnorm(x(T));  
+        obj   = Fnorm(Axy) + eta*Fnorm(xT);  
         gap   = Fnorm(x-barx) + Fnorm(y-bary);
         if obj  < obj0 - 1e-6*gap 
            break; 
         end
-        alpha = alpha*0.25;
+        alpha = alpha*0.5;
         TT    = T;
     end
     
@@ -132,33 +132,32 @@ for iter = 1:maxit
           break;
        end 
        AT0     = AT(y==0,:); 
-       tmp     = (AT0'*AT0+eta*speye(s))\(eps*sum(AT0,1)');   
-       tmp2    = eps-AT(I,:)*tmp;  
-       Ax1     = AT*tmp;
+       tmp1    = (AT0'*AT0+eta*speye(s))\(eps*sum(AT0,1)'); 
+       tmp2    = eps-AT(I,:)*tmp1;  
+       Ax1     = AT*tmp1;
        Axy1    = Ax1 - eps; 
        Axy1(I) = Axy1(I) + tmp2;
-       obj1    = Fnorm(Axy1) + eta*Fnorm(tmp);
-       gap     = Fnorm(x(T)-tmp) + Fnorm(y(I)-tmp2); 
+       obj1    = Fnorm(Axy1) + eta*Fnorm(tmp1);
+       gap     = Fnorm(xT-tmp1) + Fnorm(y(I)-tmp2); 
        stop0(iter) = 1; 
        if obj1    <= obj-1e-6*gap && nnz(tmp2>0)<=k   
           x        = zeros(n,1);
           y        = zeros(m,1);
-          x(T)     = tmp;
+          x(T)     = tmp1;
           y(I)     = tmp2;  
           Ax       = Ax1;
           Axy      = Axy1;
           obj      = obj1;              
       end           
-   end
-     
+    end
+  
     sb        = sign(-c.*Ax); 
     sb(sb==0) = -1;
-    ham       = 1-nnz(sb+c)/m;     
+    ham       = 1-nnz(sb+c)/m; 
     HAM(iter) = ham; 
     OBJ(iter) = obj;   
     
-    fprintf('%4d      %6.2f%%      %6.3e    %5.2fsec\n',...
-             iter, ham*100,obj, toc(t0));
+    fprintf('%4d      %6.2f%%      %6.3e    %5.2fsec\n',iter, ham*100,obj, toc(t0));
     stop1 = (iter > 5 && gap < tol);     
     stop2 = (iter > 5 && std(HAM(iter-5:iter))<1e-6*log(n));   
     stop3 = (iter > 5 && std(OBJ(iter-5:iter))<1e-6*log(n));   
@@ -225,19 +224,21 @@ function [maxit,tol,eta,eps,acc,big] = GetParameters(m,n)
 end
 
 %--------------------------------------------------------------------------
-function [xs,T] = ProS(x,s)
+function [xs, xT, T] = ProS(x,s)
          [~,T]  = maxk(abs(x),s);  
          T      = sort(T);
+         xT     = x(T);
          xs     = zeros(size(x));
-         xs(T)  = x(T);
+         xs(T)  = xT;
 end
 
 %--------------------------------------------------------------------------
-function y  = ProK(y,k)
-    if   k  > 0
-         ys = maxk(y,k);  
-         if ys(end) > 0
-            y  = y.*( y<0 | y >= ys(end) ); 
+function y   = ProK(y,k)
+    if   k   > 0
+         ys  = maxk(y,k);  
+         ysd = ys(end);
+         if ysd > 0
+            y   = y.*( y<0 | y >= ysd ); 
          end
     else
          y(y>0)=0; 
