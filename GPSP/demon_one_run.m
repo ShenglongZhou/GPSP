@@ -1,7 +1,7 @@
 clc; close all; clear; warning off
 addpath(genpath(pwd));
 
-n          = 20000;         % Signal dimension 
+n          = 2000;          % Signal dimension 
 m          = ceil(0.5*n);   % Number of measurements
 s          = ceil(0.01*n);  % Sparsity level
 r          = 0.01;          % Flipping ratio
@@ -16,7 +16,3 @@ fprintf('SNR:  %6.3f\n',-10*log10(norm(x-xo)^2));
 fprintf('HD:   %6.3f\n',nnz(sign(A*x)-c)/m)
 fprintf('HE:   %6.3f\n',nnz(sign(A*x)-co)/m)
 RecoverShow(xo,x,[1000 450 500 250])
-
-
-
-
